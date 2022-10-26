@@ -1,4 +1,4 @@
 FROM openjdk:11
-ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} app.jar
-ENTRYPOINT ["java","-jar","/app.jar"]
+ADD target/spring-boot-hw-0.0.1-SNAPSHOT.jar spring-boot-hw-0.0.1-SNAPSHOT.jar
+EXPOSE 8085
+ENTRYPOINT ["java","-jar","spring-boot-hw-0.0.1-SNAPSHOT.jar"]
