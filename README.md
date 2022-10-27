@@ -39,8 +39,17 @@ a-b-c adımlarımızı Jenkinsfile içinde kuracağız.Yani dışarıdan bir mü
 https://user-images.githubusercontent.com/64022432/198392563-c1000fc7-af6f-4c27-b0b0-d7c3930eb045.mp4
 
 ----
+#### SSH/Telnet uygulamasına bağlanma;
+- ssh -i komutuyla beraber daha önce indirdiğimiz Ssh Key'imizin dosya komutu ekliyoruz ve devamında ubuntu@<VM_Public_Key> ile Server'ın Public Key'i ile birlikte giriş yapıyoruz.
 
-Bir Kubernetes cluster’ı içinde iki farklı kaynak mevcut; master ve node. İki farklı sanal makine oluşturup, ortak kurulumları tamamlayıp, ileriki adımlarda master ve node’u özelleştirerek hedefe ulaşabiliriz.Bu yüzden kurulum adımlarını Master ve Node için , Master için ,Node için şeklinde ayıracağım.
+
+
+https://user-images.githubusercontent.com/64022432/198405255-db1e52ae-ec34-4a03-9c9c-2fe13a5178e8.mp4
+
+----
+----
+
+#### Bir Kubernetes cluster’ı içinde iki farklı kaynak mevcut; master ve node. İki farklı sanal makine oluşturup, ortak kurulumları tamamlayıp, ileriki adımlarda master ve node’u özelleştirerek hedefe ulaşabiliriz.Bu yüzden kurulum adımlarını Master ve Node için , Master için ,Node için şeklinde ayıracağım.
 ## Master Ve Node İçin Ortak Uygulanacaklar:
 
 #### Kubernetes kurulumu yaparken dikkat edeceğimiz ilk nokta swap alanını iptal etmek.Kubernetes swap alan varken çalışmıyor. Bunun için aşağıdaki komutu kullanabiliriz. Ancak sunucu reboot edildiğinde swap alan tekrar aktive olacaktır ve k8s servisi ayaklanırken hata verecektir. Bu yüzden swap alanını /etc/fstab dosyasına nano,vi veya vim ile girerek swap alanının olduğu satırı yoruma alabilirsiniz.
@@ -79,3 +88,76 @@ Bir Kubernetes cluster’ı içinde iki farklı kaynak mevcut; master ve node. �
 > apt-get install -y kubelet kubeadm kubectl
 
 > apt-mark hold kubelet kubeadm kubectl
+  
+##  Sadece Master Server için uygulanacaklar
+#### Bu işlemler tamamlandıktan sonra, Kubernetes cluster sistemini oluşturmak için gerekli paketlere sahip duruma gelmiş olduk. Cluster sistemini kurmak için kubeadm init komutunu kullanacağız. Bu komuta verilen iki parametre var. Init işleminden önce bu parametrelerin değerlerini belirlememiz gerekiyor.
+
+#### 1- --apiserver-advertise-address=<ip-address>
+
+#### Bu adres, Kubernetes master sunucusunun gelen istekleri dinleyeceği IP’dir. Değer verilmezse default ile ilişkilendirilen interface kullanılır.Benim için bu değer vm’in IP’si olacak: --apiserver-advertise-address=172.31.10.85
+
+#### 2- --pod-network-cidr Bu parametre sistemde kurulacak olan network modülüne göre (CNI) değer alır.Kubernetes kurulum sırasında bir ağ çözümü sağlamaz. 3. parti bir çözüm kurmanızı bekler. --pod-network-cidr parametresi işte bu seçilen 3. parti network modülüne göre belirlenir. Örneğin ben Weave Network Provider ile ilerliyorum. Bu yüzden parametremiz şu olacak: --pod-network-cidr=192.168.0.0/16
+  
+#### Böylece init komutumuz şu hale gelmiş oluyor:
+> kubeadm init --apiserver-advertise-address=172.31.10.85 --pod-network-cidr=192.168.0.0/16
+  
+#### Kubernetes cluster sisteminde master sunucu bu komut ile ayaklandırılır. Bu komutun çıktısı çok önemlidir, bu yüzden komut çıktısını mutlaka saklayın. Komut çıktısında üç tane önemli bilgi yer alır. Bunlar:
+
+ 1- Master sunucuda kubectl komutunu kullanabilmek için gerekli çevresel değişken tanımlarının nasıl yapıldığı.Yani çıktıda da yazdığı gibi normal bir kullanıcı olarak çalıştırmamız gerekiyor. Hala su modunda iseniz exit ile normal kullanıcıya geçelim.
+  
+> To start using your cluster, you need to run the following as a regular user:
+
+> exit
+
+> mkdir -p $HOME/.kube
+
+> sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+
+> sudo chown $(id -u):$(id -g) $HOME/.kube/config
+  
+
+2- Bu işlemden sonra bir network modülü kurulmasının gerekliliği
+
+" You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+https://kubernetes.io/docs/concepts/cluster-administration/addons/
+"
+#### Burada verilen linke giderek ulaştıüınız sayfadan kurulum bilgisi alabilirsiniz. Weave’i şöyle kuruyoruz:
+> $ kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+
+#### 3- Sisteme worker node eklerken kullanılacak token bilgisini içeren komut.
+  
+"You can now join any number of machines by running the following on each node
+as root:"
+
+> kubeadm join 172.31.10.85:6443 --token bmgulk.dy8uqqalhy5wtisi --discovery-token-ca-cert-hash sha256:e277992ec25fc2007c98c44a43986fa8f8fa9eb63b193080748be31d3d98a771
+  
+#### komutu bir yere kopyalamanızda fayda var. Bu komut cluster’a node eklerken node’lar üzerinden çalıştıracağımız komut.Ancak herhangi bir nedenden dolayı bu çıktıya ulaşamıyorsanız.Token ve ca cert hash bilgisi için aşağıdaki komutları koşabilirsiniz.
+  
+> kubeadm token list
+
+> openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
+  
+##  Sadece Node Server için uygulanacaklar 
+
+#### Master node'a yazdığımız ve saklamamız gerektğini söylediğim kubeadm init komutunun çıktısını aynen buraya yapıştırıyoruz.
+> kubeadm join 172.31.10.85:6443 --token bmgulk.dy8uqqalhy5wtisi --discovery-token-ca-cert-hash sha256:e277992ec25fc2007c98c44a43986fa8f8fa9eb63b193080748be31d3d98a771
+
+#### Bu çıktı sonunda beklediğimiz Node'un Cluster'a bağlabilmesi.Yani komutun sonunda aşağıdaki çıktıyı almayı bekliyoruz.
+
+![Screenshot 2022-10-28 003840](https://user-images.githubusercontent.com/64022432/198403421-1a5cce1c-dd99-485f-b640-5027e9efe88f.png)
+
+-----
+
+  
+#### Sonrasında Master Node'a ilerleyerek aşağıdaki komutu yazıyoruz ve Cluster'ımızın oluştuğunu gözlemliyoruz.
+
+  
+> kubectl get nodes
+
+  
+  
+![Screenshot 2022-10-28 003149](https://user-images.githubusercontent.com/64022432/198403777-9869ae9c-9a2a-4425-9935-9ac50d2a294d.png)
+  
+
+### Cluster'ımız oluştu.Şu an için Server-1(Master node) ve Server-2(Worker node) ile işimiz bitti.Jenkins Server'ın kurulumuna geçebiliriz.    
