@@ -50,7 +50,8 @@ https://user-images.githubusercontent.com/64022432/198405255-db1e52ae-ec34-4a03-
 ----
 
 #### Bir Kubernetes cluster’ı içinde iki farklı kaynak mevcut; master ve node. İki farklı sanal makine oluşturup, ortak kurulumları tamamlayıp, ileriki adımlarda master ve node’u özelleştirerek hedefe ulaşabiliriz.Bu yüzden kurulum adımlarını Master ve Node için , Master için ,Node için şeklinde ayıracağım.
-## Master Ve Node İçin Ortak Uygulanacaklar:
+
+## ~ Master Ve Node İçin Ortak Uygulanacaklar ~
 
 #### Kubernetes kurulumu yaparken dikkat edeceğimiz ilk nokta swap alanını iptal etmek.Kubernetes swap alan varken çalışmıyor. Bunun için aşağıdaki komutu kullanabiliriz. Ancak sunucu reboot edildiğinde swap alan tekrar aktive olacaktır ve k8s servisi ayaklanırken hata verecektir. Bu yüzden swap alanını /etc/fstab dosyasına nano,vi veya vim ile girerek swap alanının olduğu satırı yoruma alabilirsiniz.
 
@@ -89,7 +90,7 @@ https://user-images.githubusercontent.com/64022432/198405255-db1e52ae-ec34-4a03-
 
 > apt-mark hold kubelet kubeadm kubectl
   
-##  Sadece Master Server için uygulanacaklar
+## ~ Sadece Master Server için uygulanacaklar ~
 #### Bu işlemler tamamlandıktan sonra, Kubernetes cluster sistemini oluşturmak için gerekli paketlere sahip duruma gelmiş olduk. Cluster sistemini kurmak için kubeadm init komutunu kullanacağız. Bu komuta verilen iki parametre var. Init işleminden önce bu parametrelerin değerlerini belirlememiz gerekiyor.
 
 #### 1- --apiserver-advertise-address=<ip-address>
@@ -138,7 +139,7 @@ as root:"
 
 > openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | openssl dgst -sha256 -hex | sed 's/^.* //'
   
-##  Sadece Node Server için uygulanacaklar 
+## ~ Sadece Node Server için uygulanacaklar ~
 
 #### Master node'a yazdığımız ve saklamamız gerektğini söylediğim kubeadm init komutunun çıktısını aynen buraya yapıştırıyoruz.
 > kubeadm join 172.31.10.85:6443 --token bmgulk.dy8uqqalhy5wtisi --discovery-token-ca-cert-hash sha256:e277992ec25fc2007c98c44a43986fa8f8fa9eb63b193080748be31d3d98a771
@@ -160,4 +161,55 @@ as root:"
 ![Screenshot 2022-10-28 003149](https://user-images.githubusercontent.com/64022432/198403777-9869ae9c-9a2a-4425-9935-9ac50d2a294d.png)
   
 
-### Cluster'ımız oluştu.Şu an için Server-1(Master node) ve Server-2(Worker node) ile işimiz bitti.Jenkins Server'ın kurulumuna geçebiliriz.    
+### Cluster'ımız oluştu.Şu an için Server-1(Master node) ve Server-2(Worker node) ile işimiz bitti.Jenkins Server'ın kurulumuna geçebiliriz. 
+  
+
+  ## ~ Jenkins Server Kurulumu ~
+
+#### İş paketimizin 3.adımına geldik.Son VM'imizide kurup sonrasında süreçleri otomatize etmeye çalışacağız.
+#### Jenkins, açık kaynaklı bir otomasyon sunucusudur. Yazılım geliştirmenin oluşturma, test etme ve dağıtma ile ilgili bölümlerini otomatikleştirmeye yardımcı olur,  sürekli entegrasyon ve sürekli teslimatı kolaylaştırır.Hızlıca Kurulum komutlarına geçelim;
+  
+#### Jenkins bir Java uygulaması olduğu için ilk adım Java'yı yüklemektir. Paket dizinini güncelleyin ve Java 11 OpenJDK paketini aşağıdaki komutlarla yükleyelim: 
+  
+  > sudo apt update
+  > sudo apt install openjdk-11-jre-headless
+  
+#### Aşağıdaki wget komutunu kullanarak Jenkins deposunun GPG anahtarlarını içe aktarıyoruz: 
+  > wget -q -O - https://pkg.jenkins.io/debian/jenkins.io.key | sudo apt-key add -
+  
+#### Ardından, Jenkins deposunu sisteme ekliyoruz:
+  > sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ >
+/etc/apt/sources.list.d/jenkins.list'
+  
+ #### Jenkins deposu etkinleştirildiğinde, apt paket listesini güncelliyoruz ve ardından Jenkins'in en son sürümünü yüklüyoruz:
+ >sudo apt update
+ 
+ >sudo apt install jenkins
+  
+#### Jenkins kurulumunu tamamlamak için tarayıcımızı açıyoruz, IP adresimizi yazıyoruz(Jenkin Server Public_ip) 8080 numaralı bağlantı noktasını AWS güvenlik gruplarında açtığınızdan emin oluyoruz. ~ http://VM_Public_ip:8080 ~ ve aşağıdakine benzer bir ekran görüntülenecektir: 
+ 
+![Screenshot 2022-10-28 011847](https://user-images.githubusercontent.com/64022432/198408803-f3134476-515d-4928-a1d2-c8b9d21a15f6.png)
+  
+#### Yükleme sırasında Jenkins yükleyicisi, başlangıçta 32 karakter uzunluğunda bir alfasayısal(alphanumeric) bir şifre girmemizi istiyor.Parolaya ulaşmak için görselde de görüldüğü gibi aşağıdaki komutu yazıyoruz:  
+> sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+> Çıktı : 2115173b548f4e99a203ee99a8732a32 --> bu değeri Jenkins'in Dashboard'ı üzerinde ilgili yere yapıştırıyoruz.
+  
+#### İlerledikten sonra karşımıza aşağıdaki kısım çıkıyor.Install Suggested Plugins(Önerilen pluginler) seçeneğiyle devam ediyoruz.Jenkins içerisinde Manage Plugins  sekmesinden sonrasında ihtiyaç duyduğumuz pluginleri indirebiliriz.
+
+![Screenshot 2022-10-28 013133](https://user-images.githubusercontent.com/64022432/198410390-31171ede-5891-4281-a705-3d187c521720.png)
+
+#### Pluginleri yükledikten sonra girş ekranı bizi karşılıyor olacak buradan kullanıcı ve şifre oluşturarak giriş yapabiliriz.Ben direk admin olarak giriş yaptım ve kullanıcı ayarları kısmından admin şifresini değiştirdim.
+ 
+
+![Screenshot 2022-10-28 013322](https://user-images.githubusercontent.com/64022432/198410566-ccc9ad13-bb28-46f7-ba9d-c0dddf72749c.png)
+
+-----
+#### Docker yükleme kısmına geldik.Docker'ı yüklerken dikkat etmemiz gerek bir konu var oda Jenkins User'ı Docker grubuna eklemek.Yoksa Jenkins içerisinde Docker komutlarını kullanamayız.
+> curl -fsSL get.docker.com | /bin/bash
+
+#### Jenkins User'ı Docker grubuna ekliyoruz:
+>sudo usermod -aG docker jenkins
+  
+#### Son olarak Jenkins'i yeniden başlatıyoruz:
+>sudo systemctl restart jenkins
