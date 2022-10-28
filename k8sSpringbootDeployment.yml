@@ -28,7 +28,7 @@ metadata:      #Oluşturduğumuz kaynak türünün meta verileri
 spec:
   type: NodePort # Servisin türü
   ports:
-    - port:    #Servisin kümede çalıştığı bağlantı noktası
+    - port: 8080   #Servisin kümede çalıştığı bağlantı noktası
       targetPort: 8080
   selector:
     app: helloworld
