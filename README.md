@@ -276,9 +276,27 @@ as root:"
 - Yani jenkins makinesine vim komutuyla .kube/config oluşturuyoruz.Master makinemize giderek cat .kube/config le beraber görüntülenen içeriğinin tamamını Jenkins'te vim ile oluşturduğumuz dizine kopyalıyoruz.Hatırlanacağı üzere sadece Master makinesi için yaptığımız adımlarda config içeriğini oluşturmuştuk 
 >vim .kube/config --> Jenkins Server(Server-3)
 
->cat ![Screenshot 2022-10-28 102336](https://user-images.githubusercontent.com/64022432/198528894-8d387e71-b537-43a4-80f3-ad0849597cb5.png)
-.kube/config --> Master Server(Server-1)
+>cat .kube/config --> Master Server(Server-1)
 
 - Aşağıdaki resimde göründüğü gibi dörtgen içersindeki tüm kısmı kopyalayıp Jenkins'e yapıştırıyoruz:
-![Uploading Screenshot 2022-10-28 102336.png…]()
+![Screenshot](https://user-images.githubusercontent.com/64022432/198528894-8d387e71-b537-43a4-80f3-ad0849597cb5.png)
 
+- Şimdi Stage'i yazabiliriz.Deploy etmek için kubectl apply -f komutuyla beraber deploy için oluşturduğum yaml dosyasının ismini yazıyorum.
+- Deploy öncesinde master node üzerinde servisleri konrol edelim:
+  ![deploy öncesi](https://user-images.githubusercontent.com/64022432/198540469-e3747e5e-32e0-49f0-8179-4b107411411b.png)
+
+-Pipeline'ı çalıştırıyoruz ve succes dönüyor aşağıdaki videoda pipeline konsol çıktısını görebiliriz:
+  
+
+https://user-images.githubusercontent.com/64022432/198544612-88f06613-50fa-436d-8eeb-d7937d4d6d2e.mp4
+
+---------  
+Komutumuzu Master'a yeniden yazıyoruz:
+>kubectl get service
+![deploy 2](https://user-images.githubusercontent.com/64022432/198545547-7be2fdbf-e613-4076-ad9b-238cd8aeab03.png)
+  
+- Dörtgen içine aldığım kısım ile tarayıcımıza gidip çıktımızı göreceğiz.Yani <public_ip_address>:<port> ilgili değerleri tarayıcımıza gireceğiz.Benim için bu adres:
+ > http://3.92.198.235:32152/hello  
+ > ![Screenshot 2022-10-28 115622](https://user-images.githubusercontent.com/64022432/198547646-cc9dea01-7834-4fd0-8e1d-4dc8d48c86e4.png)
+
+> 
