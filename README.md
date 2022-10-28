@@ -213,3 +213,43 @@ as root:"
   
 #### Son olarak Jenkins'i yeniden başlatıyoruz:
 >sudo systemctl restart jenkins
+---------------
+---------------
+---------------
+
+## ~ Jenkins Pipeline ~ 
+  
+#### Jenkins Pipeline'ım 5 adımdan(stage) oluşucak; Git clone,Maven Clean Package,Build Docker Image,Docker Push,Deploy To Kuberates Cluster adım adım yazarak ilerleyeceğim.
+  
+#### Öncelikle Jenkins-->New Item diyerek ilerliyor proje ismini verip pipeline seçeneğini seçiyoruz.  
+#### Sonrasında ilk Stage'imi oluşturuyorum:
+
+ ![jenkins-2](https://user-images.githubusercontent.com/64022432/198416561-28a7cdee-c991-4b3a-bae6-7a33ff7c625b.png)
+
+#### Burada GIT_HUB_CREDENTIALS olarak geçen kısım için Manage Jenkins-->Manage Credentials-->Add Credential diyerek ilerliyorum.Sonrasında gelen kısımları uygun olarak github kullanıcı adım ve şifremle oluşturuyorum.Credentials'a secret text ,key ,password gerektiren Stageler de ihtiyaç duyarız.Çünkü Pipeline içerisinde şifrelermizin gözükmesini istemeyiz.Temelde bu sebeple olsada Credentials tanımlamak sonraki Stageler de ihtiyaç olması durumunda yeniden kullanarak kod tekrarını önler ve daha okunabilir bir görünüm sağlar.Docker Hub için yine Credentials kullanıyor olacağım.
+ 
+![jenkins-3](https://user-images.githubusercontent.com/64022432/198417168-25db2511-d6f6-4527-9162-88338fc03ff3.png)
+
+#### Yeniden Pipeline'a dönerek build now diyorum ve succes alıyorum.Console outputtan ve succes kutucuğun üstüne basıp log diyerek çıktıları görebiliriz.
+
+#### 2.adım olan Maven Paketlerini temizlemeye geçiyorum.Maven kullanmadan önce Tool Konfigrasyonunu yapmam gerekiyor bunun için;  Manage Jenkins-->Global Tool Configruation-->Maven'a ilerliyorum ve son versiyonuyla ekliyorum.
+  
+![jenkins-5](https://user-images.githubusercontent.com/64022432/198417642-9a54837f-85fb-4e78-bf67-c5d9324d7503.png)
+
+ #### 2.Stage'i çalıştırıyorum ve succes alıyorum. 
+ ![jenkins-7](https://user-images.githubusercontent.com/64022432/198417668-85b996c3-079c-4172-91e2-14c6fbeeaa04.png)
+----
+#### Şimdi Docker Image oluşturma kısmına geldim.Image oluşturmak için uzantısız bir Dockerfile dosyasına ihtiyacım var bu dosyaya image alması için Pom.xml dosyamdaki artifact_id ve version_number ile beraber kullanarak jar oluşturuyorum.Docker Hub'a ilerleyerek yeni bir repository oluşturuyorum.Bu repository build ve push ederken referans olarak vereceğim.Aşağıdaki resimde de gözüktüğü üzere Docker Hub kullanıcı adımla beraber repository ismini verek build alıyorum.
+  
+![jenkins-8](https://user-images.githubusercontent.com/64022432/198418059-8a2554d6-902a-4f45-8f70-a57b6f57e0e3.png)
+  
+ ![jenkins-9](https://user-images.githubusercontent.com/64022432/198418402-7b7c6624-d13d-4b09-be50-e0a3a822c976.png)
+  
+#### Sıra Image'ı push etmeye geldi push etmek için Docker Hub hesabımın giriş bilgileri gerekiyor bu yüzden bu Stage için yine bir credentials tanımlıyoruz.Credentials tanımlayıp Stage'i oluşturduktan sonra Pipeline'ımız için yeniden bir build alıyorum ve sonuç aşağıdaki gibi geliyor Docker Hub repoma ilerlediğim de Image'ın düştüğünü gözlemleyebiliyoruz.
+
+![jenkins-11](https://user-images.githubusercontent.com/64022432/198418926-6ba35542-1747-423f-890e-5da6b19b7efd.png)
+
+----------------------------------------------------
+  
+Son adım olarak Bu Image'ı Kubernetes Cluster'a deploy etmek kaldı.Bunun için bir kaç yöntem var.Benim uygulayacağım yöntem ise Jenkins Server'da kubetcl kurmak ve Kubeconfig'i Jenkins sunucusuna eklemek.
+  
