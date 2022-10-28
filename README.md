@@ -251,5 +251,34 @@ as root:"
 
 ----------------------------------------------------
   
-Son adım olarak Bu Image'ı Kubernetes Cluster'a deploy etmek kaldı.Bunun için bir kaç yöntem var.Benim uygulayacağım yöntem ise Jenkins Server'da kubetcl kurmak ve Kubeconfig'i Jenkins sunucusuna eklemek.
+- #### Son adım olarak Bu Image'ı Kubernetes Cluster'a deploy etmek kaldı.Bunun için bir kaç yöntem var.Benim uygulayacağım yöntem ise Jenkins Server'da kubetcl kurmak ve Kubeconfig'i Jenkins sunucusuna eklemek.
   
+- Kubectl'i Jemkins Server'a indiriyoruz:
+>sudo apt-get update && sudo apt-get install -y apt-transport-https
+
+>curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+>echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+
+>sudo apt-get update
+
+>sudo apt-get install -y kubectl
+
+- Jenkins kullanıcısına geçiyoruz:
+>sudo -i -u jenkins
+
+- Jenkins ana dizininde .kube klasörü oluşturuyoruz:
+>cd ~
+
+>mkdir .kube
+
+- Yapılandırma dosyası oluşturuyoruz ve yapılandırma dosyası içeriğini Kubernetes Cluster ana makinesinden kopyalayıp ve içeriğe kaydediyoruz:
+- Yani jenkins makinesine vim komutuyla .kube/config oluşturuyoruz.Master makinemize giderek cat .kube/config le beraber görüntülenen içeriğinin tamamını Jenkins'te vim ile oluşturduğumuz dizine kopyalıyoruz.Hatırlanacağı üzere sadece Master makinesi için yaptığımız adımlarda config içeriğini oluşturmuştuk 
+>vim .kube/config --> Jenkins Server(Server-3)
+
+>cat ![Screenshot 2022-10-28 102336](https://user-images.githubusercontent.com/64022432/198528894-8d387e71-b537-43a4-80f3-ad0849597cb5.png)
+.kube/config --> Master Server(Server-1)
+
+- Aşağıdaki resimde göründüğü gibi dörtgen içersindeki tüm kısmı kopyalayıp Jenkins'e yapıştırıyoruz:
+![Uploading Screenshot 2022-10-28 102336.png…]()
+
