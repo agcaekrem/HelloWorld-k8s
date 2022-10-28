@@ -9,6 +9,6 @@ public class HelloWorldK8sController {
 
     @GetMapping("/hello")
     public String hello() {
-        return "E2E - Hello Huawei";
+        return "E2E - Hello World!";
     }
 }
