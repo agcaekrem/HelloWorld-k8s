@@ -1,34 +1,34 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: Deployment # Oluşturduğumuz Kubernetes kaynak türü
 metadata:
-  name: jhooq-springboot
+  name: HelloWorld
 spec:
-  replicas: 3
+  replicas: 2 # Bu dağıtım için oluşturulacak kopya sayısı
   selector:
     matchLabels:
-      app: jhooq-springboot
+      app: HelloWorld
   template:
     metadata:
       labels:
-        app: jhooq-springboot
+        app: HelloWorld
     spec:
       containers:
-        - name: springboot
-          image: agcaaekrem/docker-demo:docker-demo
+        - name: HelloWorld
+          image: agcaaekrem/docker-demo # Cluster'da kullanılacak image dosyası 
           ports:
             - containerPort: 8080
           env:
             - name: PORT
               value: "8080"
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: jhooq-springboot
+apiVersion: v1 # Kubernetes API versiyonu
+kind: Service  # Oluşturduğumuz Kubernetes kaynak türü
+metadata:      # Oluşturduğumuz kaynak türünün meta verileri
+  name: HelloWorld
 spec:
-  type: NodePort
+  type: NodePort # Servisin türü
   ports:
-    - port: 8080
+    - port:    # Servisin kümede çalıştığı bağlantı noktası
       targetPort: 8080
   selector:
-    app: jhooq-springboot
+    app: HelloWorld
