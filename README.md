@@ -5,7 +5,7 @@
 
 ----
 ## Kullanılan araç ve teknolojiler:
-- IDE --> Aws Ec2
+- VM --> Aws Ec2
 - Linux --> Ubuntu 20.04
 - Kubernetes
 - Jenkins
@@ -223,7 +223,7 @@ as root:"
   
 #### Öncelikle Jenkins-->New Item diyerek ilerliyor proje ismini verip pipeline seçeneğini seçiyoruz.  
 #### Sonrasında ilk Stage'imi oluşturuyorum:
-
+#### İlk stage'e Github Repomun Url'sini ekliyorum.
  ![jenkins-2](https://user-images.githubusercontent.com/64022432/198416561-28a7cdee-c991-4b3a-bae6-7a33ff7c625b.png)
 
 #### Burada GIT_HUB_CREDENTIALS olarak geçen kısım için Manage Jenkins-->Manage Credentials-->Add Credential diyerek ilerliyorum.Sonrasında gelen kısımları uygun olarak github kullanıcı adım ve şifremle oluşturuyorum.Credentials'a secret text ,key ,password gerektiren Stageler de ihtiyaç duyarız.Çünkü Pipeline içerisinde şifrelermizin gözükmesini istemeyiz.Temelde bu sebeple olsada Credentials tanımlamak sonraki Stageler de ihtiyaç olması durumunda yeniden kullanarak kod tekrarını önler ve daha okunabilir bir görünüm sağlar.Docker Hub için yine Credentials kullanıyor olacağım.
@@ -232,7 +232,7 @@ as root:"
 
 #### Yeniden Pipeline'a dönerek build now diyorum ve succes alıyorum.Console outputtan ve succes kutucuğun üstüne basıp log diyerek çıktıları görebiliriz.
 
-#### 2.adım olan Maven Paketlerini temizlemeye geçiyorum.Maven kullanmadan önce Tool Konfigrasyonunu yapmam gerekiyor bunun için;  Manage Jenkins-->Global Tool Configruation-->Maven'a ilerliyorum ve son versiyonuyla ekliyorum.
+#### 2.adım olan Maven Build işlemine geçiyorum.Maven kullanmadan önce Tool Konfigrasyonunu yapmam gerekiyor bunun için;  Manage Jenkins-->Global Tool Configruation-->Maven'a ilerliyorum ve son versiyonuyla ekliyorum.
   
 ![jenkins-5](https://user-images.githubusercontent.com/64022432/198417642-9a54837f-85fb-4e78-bf67-c5d9324d7503.png)
 
@@ -272,7 +272,7 @@ as root:"
 
 >mkdir .kube
 
-- Yapılandırma dosyası oluşturuyoruz ve yapılandırma dosyası içeriğini Kubernetes Cluster ana makinesinden kopyalayıp ve içeriğe kaydediyoruz:
+- Yapılandırma dosyası oluşturuyoruz ve yapılandırma dosyası içeriğini Kubernetes Cluster ana makinesinden kopyalayıp ilgili yere yapıştırarak kaydediyoruz:
 - Yani jenkins makinesine vim komutuyla .kube/config oluşturuyoruz.Master makinemize giderek cat .kube/config le beraber görüntülenen içeriğinin tamamını Jenkins'te vim ile oluşturduğumuz dizine kopyalıyoruz.Hatırlanacağı üzere sadece Master makinesi için yaptığımız adımlarda config içeriğini oluşturmuştuk 
 >vim .kube/config --> Jenkins Server(Server-3)
 
@@ -285,17 +285,17 @@ as root:"
 - Deploy öncesinde master node üzerinde servisleri konrol edelim:
   ![deploy öncesi](https://user-images.githubusercontent.com/64022432/198540469-e3747e5e-32e0-49f0-8179-4b107411411b.png)
 
--Pipeline'ı çalıştırıyoruz ve succes dönüyor aşağıdaki videoda pipeline konsol çıktısını görebiliriz:
+- Pipeline'ı çalıştırıyoruz ve succes dönüyor aşağıdaki videoda pipeline konsol çıktısını görebiliriz:
   
 
 https://user-images.githubusercontent.com/64022432/198544612-88f06613-50fa-436d-8eeb-d7937d4d6d2e.mp4
 
 ---------  
-Komutumuzu Master'a yeniden yazıyoruz:
+- Komutumuzu Master'a yeniden yazıyoruz:
 >kubectl get service
 ![deploy 2](https://user-images.githubusercontent.com/64022432/198545547-7be2fdbf-e613-4076-ad9b-238cd8aeab03.png)
   
-- Dörtgen içine aldığım kısım ile tarayıcımıza gidip çıktımızı göreceğiz.Yani <public_ip_address>:<port> ilgili değerleri tarayıcımıza gireceğiz.Benim için bu adres:
+- Dörtgen içine aldığım kısım ile tarayıcımıza gidip çıktımızı göreceğiz.Yani <public_ip_address>:<port_mumarası> ilgili değerleri tarayıcımıza gireceğiz.Benim için bu adres:
  > http://3.92.198.235:32152/hello  
  > ![Screenshot 2022-10-28 115622](https://user-images.githubusercontent.com/64022432/198547646-cc9dea01-7834-4fd0-8e1d-4dc8d48c86e4.png)
 
