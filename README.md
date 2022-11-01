@@ -298,7 +298,7 @@ https://user-images.githubusercontent.com/64022432/198544612-88f06613-50fa-436d-
 - Dörtgen içine aldığım kısım ile tarayıcımıza gidip çıktımızı göreceğiz.Yani <public_ip_address>:<port_mumarası> ilgili değerleri tarayıcımıza gireceğiz.Benim için bu adres:
  > http://3.92.198.235:32152/hello  
  > ![Screenshot 2022-10-28 115622](https://user-images.githubusercontent.com/64022432/198547646-cc9dea01-7834-4fd0-8e1d-4dc8d48c86e4.png)
-
+------------------------------
 >AWS Instances
 >![image](https://user-images.githubusercontent.com/64022432/198548369-3cfa37d4-633d-4b0c-9aed-b65ee073567e.png)
 
